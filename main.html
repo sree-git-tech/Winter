@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management Dashboard</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.4/jquery-confirm.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.4/jquery-confirm.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #eef2f7;
+            color: #4e5d6d;
+        }
+
+        #top-header {
+            background-color: #669999;
+            padding: 15px;
+            color: #fff;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 4px solid #669999;
+        }
+
+        #search-input-holder {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        #search-input {
+            width: 60%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #3366ff;
+            font-size: 16px;
+            color: #4e5d6d;
+        }
+
+        #search-input:focus {
+            border-color: #669999;
+            outline: none;
+        }
+
+        #add-btn {
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            background-color: #28a745;
+            color: white;
+            font-size: 24px;
+            border: none;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 10px;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        #add-btn:hover {
+            transform: scale(1.1);
+            background-color: #218838;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 30px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #e3e7eb;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        th {
+            background-color: #669999;
+            color: white;
+            font-weight: bold;
+        }
+
+        .edit-btn, .delete-btn {
+            cursor: pointer;
+        }
+
+        .edit-btn i
+         {
+            font-size: 18px;
+            color:   #fd7e14;
+        }
+        .delete-btn i
+        {
+            font-size: 18px;
+            color:  #dc3545;
+        }
+
+        .edit-btn i:hover, .delete-btn i:hover {
+            color: #fd7e14;
+        }
+
+        .btn-primary, .btn-danger {
+            background-color: #007bff;
+            border: none;
+        }
+
+        .btn-primary:hover, .btn-danger:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="top-header">
+        Student Management Dashboard
+    </div>
+
+    <div class="container">
+
+<div id="search-input-holder" class="input-group mb-3">
+    <input id="search-input" type="text" placeholder="Search for a student..." class="form-control">
+    <div class="input-group-append">
+        <button id="search-btn" class="btn btn-primary" type="button">
+            <i class="fas fa-search"></i> Search
+        </button>
+    </div>
+</div>
+        </div>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Admission Number</th>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th>Gender</th>
+                    <th>Age</th>
+                    <th>Address</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody id="student-table-body">
+                <!-- Student data will be populated here -->
+            </tbody>
+        </table>
+
+        <button id="add-btn">
+            <i class="fas fa-plus"></i>
+        </button>
+
+    </div>
+
+    <script>
+        const students = [
+            { admissionNumber: "1001", name: "Shanavas", department: "Computer Science", gender: "Male", age: 22, address: "shanu villa" },
+            { admissionNumber: "1010", name: "Abhinand", department: "Mechanical Engineering", gender: "male", age: 19, address: "nandhu villa" },
+            { admissionNumber: "1020", name: "Akhil", department: "Electrical Engineering", gender: "male", age: 21, address: "Akhil villa" },
+            { admissionNumber: "1030", name: "Surya", department: "Electrical Engineering", gender: "Male", age: 18, address: "surya bhavan" },
+            { admissionNumber: "1040", name: "Joshua", department: "Electronics Engineering", gender: "Male", age: 21, address: "john villa" }
+        ];
+
+        // Render students table
+        const renderStudents = () => {
+            $("#student-table-body").empty();
+            students.forEach((student, index) => {
+                const tr = `
+                    <tr data-index="${index}">
+                        <td>${student.admissionNumber}</td>
+                        <td>${student.name}</td>
+                        <td>${student.department}</td>
+                        <td>${student.gender}</td>
+                        <td>${student.age}</td>
+                        <td>${student.address}</td>
+                         <td><div class="edit-btn">
+                         <i class="fas fa-edit"></i>
+                         </div></td>
+                        <td><div class="delete-btn">
+                        <i class="fas fa-trash-alt">
+                        </i></div></td>
+                    </tr>`;
+                $("#student-table-body").append(tr);
+            });
+        }
+
+        // Search functionality
+        $("#search-input").on("keyup", () => {
+            const searchQuery = $("#search-input").val().toLowerCase();
+            $("#student-table-body tr").each((index, row) => {
+                const name = $(row).find("td:eq(1)").text().toLowerCase();
+                if (!searchQuery || name.includes(searchQuery)) {
+                    $(row).show();
+                } else {
+                    $(row).hide();
+                }
+            });
+        });
+
+        // Edit student details
+        const editStudent = (student, tr) => {
+            $.confirm({
+                title: 'Update Student',
+                content: `
+                    <div class="form-group">
+                        <label>Admission Number</label>
+                        <input value="${student.admissionNumber}" id="admission-number-input" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input value="${student.name}" id="name-input" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label>Department</label>
+                        <input value="${student.department}" id="department-input" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <input value="${student.gender}" id="gender-input" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label>Age</label>
+                        <input value="${student.age}" id="age-input" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input value="${student.address}" id="address-input" class="form-control"/>
+                    </div>`,
+                buttons: {
+                    update: {
+                        text: 'Update',
+                        btnClass: 'btn-primary',
+                        action: () => {
+                            student.admissionNumber = $('#admission-number-input').val();
+                            student.name = $('#name-input').val();
+                            student.department = $('#department-input').val();
+                            student.gender = $('#gender-input').val();
+                            student.age = $('#age-input').val();
+                            student.address = $('#address-input').val();
+                            renderStudents();
+                        }
+                    },
+                    cancel: function () {}
+                }
+            });
+        }
+
+        // Delete student
+        const deleteStudent = (tr, index) => {
+            $.confirm({
+                title: 'Are you Sure?',
+                type: 'red',
+                content: 'Do you really want to delete this student?',
+                buttons: {
+                    yes: {
+                        text: 'Yes',
+                        btnClass: 'btn-danger',
+                        action: () => {
+                            students.splice(index, 1);
+                            tr.remove();
+                        }
+                    },
+                    no: function () {}
+                }
+            });
+        };
+
+        // Add new student
+        const addStudent = () => {
+            $.confirm({
+                title: 'Add New Student',
+                content: `
+                    <div class="form-group">
+                        <label>Admission Number</label>
+                        <input id="admission-number-input" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input id="name-input" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label>Department</label>
+                        <input id="department-input" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <input id="gender-input" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label>Age</label>
+                        <input id="age-input" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input id="address-input" class="form-control"/>
+                    </div>`,
+                buttons: {
+                    add: {
+                        text: 'Add',
+                        btnClass: 'btn-primary',
+                        action: () => {
+                            const newStudent = {
+                                admissionNumber: $('#admission-number-input').val(),
+                                name: $('#name-input').val(),
+                                department: $('#department-input').val(),
+                                gender: $('#gender-input').val(),
+                                age: $('#age-input').val(),
+                                address: $('#address-input').val()
+                            };
+                            students.push(newStudent);
+                            renderStudents();
+                        }
+                    },
+                    cancel: function () {}
+                }
+            });
+        };
+
+        // Add and edit events
+        $(document).on("click", ".edit-btn", function () {
+            const tr = $(this).closest('tr');
+            const index = tr.data('index');
+            const student = students[index];
+            editStudent(student, tr);
+        });
+
+        $(document).on("click", ".delete-btn", function () {
+            const tr = $(this).closest('tr');
+            const index = tr.data('index');
+            deleteStudent(tr, index);
+        });
+
+        // Event listener for adding a new student
+        $("#add-btn").on("click", addStudent);
+
+        // Initialize students
+        renderStudents();
+    </script>
+
+</body>
+</html>
